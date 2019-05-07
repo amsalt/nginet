@@ -39,6 +39,7 @@ func (c *Connector) FireConnect(channel Channel) InboundInvoker {
 	return channel.Pipeline().FireConnect(channel)
 }
 func (c *Connector) FireDisconnect() InboundInvoker {
+	log.Errorf("Connector connection disconnected.")
 	return c.Pipeline().FireDisconnect()
 }
 

@@ -105,8 +105,9 @@ func (tb *tcpServBuilder) Build(opt ...core.BuildOption) core.AcceptorChannel {
 }
 
 var defaultCliOptions = Options{
-	WriteBufSize: 1024,
-	ReadBufSize:  1024,
+	WriteBufSize:  1024,
+	ReadBufSize:   1024,
+	AutoReconnect: false,
 }
 
 var defaultServeroptions = serverOptions{
@@ -118,8 +119,9 @@ var defaultServeroptions = serverOptions{
 }
 
 type Options struct {
-	WriteBufSize int
-	ReadBufSize  int
+	WriteBufSize  int
+	ReadBufSize   int
+	AutoReconnect bool
 }
 
 type serverOptions struct {

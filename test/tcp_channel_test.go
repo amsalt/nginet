@@ -51,6 +51,7 @@ func TestTCPChannel(t *testing.T) {
 		byteArr, err := codec.Marshal(&tcpChannel{Msg: "tcpChannel handler response data"})
 		if err == nil {
 			ctx.Write(packet.NewRawPacket(1, byteArr))
+			ctx.Close()
 		}
 	})
 

@@ -3,8 +3,8 @@ package core
 import (
 	"net"
 
-	"github.com/amsalt/nginet/shortid"
 	"github.com/amsalt/log"
+	"github.com/amsalt/nginet/shortid"
 )
 
 // Channel is a nexus to a network socket or a component which is capable of I/O
@@ -18,6 +18,9 @@ type Channel interface {
 
 	// Write writes message to opposite side.
 	Write(msg interface{}) error
+
+	// Close close the connection
+	Close()
 
 	// Pipeline returns the ChannelPipeline.
 	Pipeline() ChannelPipeline
@@ -72,18 +75,12 @@ type ConnectorChannel interface {
 
 	// Connect connects to the special address.
 	Connect(addr interface{})
-
-	// Close closes the connection.
-	Close()
 }
 
 // SubChannel represents a server-side connection connected by a client.
 type SubChannel interface {
 	Channel
 	InboundInvoker
-
-	// Close closes the connection immediately.
-	Close()
 
 	// GracefullyClose closes gracefully with all message sent before close.
 	GracefullyClose()
@@ -145,18 +142,22 @@ func (bc *BaseChannel) Pipeline() ChannelPipeline {
 
 // LocalAddr returns the local addr.
 func (bc *BaseChannel) LocalAddr() net.Addr {
-	panic("BaseChannel not implement, need be overrided")
+	panic("BaseChannel LocalAddr not implement, need be overrided")
 }
 
 // RemoteAddr return the opposite side addr.
 func (bc *BaseChannel) RemoteAddr() net.Addr {
-	panic("BaseChannel not implement, need be overrided")
+	panic("BaseChannel RemoteAddr not implement, need be overrided")
 }
 
 func (bc *BaseChannel) Write(msg interface{}) error {
-	panic("BaseChannel not implement, need be overrided")
+	panic("BaseChannel Write not implement, need be overrided")
+}
+
+func (bc *BaseChannel) Close() {
+	panic("BaseChannel Close not implement, need be overrided")
 }
 
 func (bc *BaseChannel) RawConn() RawConn {
-	panic("BaseChannel not implement, need be overrided")
+	panic("BaseChannel RawConn not implement, need be overrided")
 }

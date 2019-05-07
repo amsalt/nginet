@@ -1,8 +1,8 @@
 package core
 
 import (
-	"github.com/amsalt/nginet/bytes"
 	"github.com/amsalt/log"
+	"github.com/amsalt/nginet/bytes"
 )
 
 // ChannelContext enables a ChannelHandler to interact with its ChannelPipeline
@@ -159,6 +159,11 @@ func (ctx *ChannelContext) doRead(msg interface{}) {
 
 func (ctx *ChannelContext) Write(msg interface{}) OutboundInvoker {
 	ctx.Channel().Write(msg)
+	return ctx
+}
+
+func (ctx *ChannelContext) Close() OutboundInvoker {
+	ctx.Channel().Close()
 	return ctx
 }
 
