@@ -16,22 +16,22 @@ type MessageEncoder struct {
 
 // NewMessageEncoder creates new MessageEncoder instance.
 func NewMessageEncoder(messageSerializer *MessageSerializer, idParser *IDParser) *MessageEncoder {
-	ps := &MessageEncoder{}
-	ps.DefaultOutboundHandler = core.NewDefaultOutboundHandler()
-	ps.idParser = idParser
-	ps.messageSerializer = messageSerializer
-	return ps
+	me := &MessageEncoder{}
+	me.DefaultOutboundHandler = core.NewDefaultOutboundHandler()
+	me.idParser = idParser
+	me.messageSerializer = messageSerializer
+	return me
 }
 
-func (ps *MessageEncoder) OnWrite(ctx *core.ChannelContext, msg interface{}) {
+func (me *MessageEncoder) OnWrite(ctx *core.ChannelContext, msg interface{}) {
 	log.Debugf("MessageEncoder OnWrite: %+v", msg)
-	buf, err := ps.idParser.EncodeID(msg)
+	buf, err := me.idParser.EncodeID(msg)
 	if err != nil {
 		ctx.FireError(err)
 		return
 	}
 
-	err = ps.messageSerializer.EncodePayload(buf, msg)
+	err = me.messageSerializer.EncodePayload(buf, msg)
 	if err != nil {
 		ctx.FireError(err)
 		return

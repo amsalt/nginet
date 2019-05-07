@@ -21,20 +21,20 @@ type MessageSerializer struct {
 
 // NewMessageSerializer creates new PacketSerializer instance.
 func NewMessageSerializer(register message.Register, codec encoding.Codec) *MessageSerializer {
-	ps := &MessageSerializer{}
-	ps.DefaultOutboundHandler = core.NewDefaultOutboundHandler()
-	ps.codec = codec
-	ps.register = register
-	return ps
+	ms := &MessageSerializer{}
+	ms.DefaultOutboundHandler = core.NewDefaultOutboundHandler()
+	ms.codec = codec
+	ms.register = register
+	return ms
 }
 
-func (ps *MessageSerializer) OnWrite(ctx *core.ChannelContext, msg interface{}) {
+func (ms *MessageSerializer) OnWrite(ctx *core.ChannelContext, msg interface{}) {
 	if params, ok := msg.([]interface{}); ok && len(params) > 1 {
 		idBuf := params[0]
 		msgOrigin := params[1]
 		buf, ok := idBuf.(bytes.WriteOnlyBuffer)
 		if ok {
-			err := ps.EncodePayload(buf, msgOrigin)
+			err := ms.EncodePayload(buf, msgOrigin)
 			if err != nil {
 				ctx.FireError(err)
 				return

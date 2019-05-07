@@ -16,19 +16,19 @@ type MessageDecoder struct {
 
 // NewMessageDecoder creates new MessageDecoder instance.
 func NewMessageDecoder(messageDeserializer *MessageDeserializer, idParser *IDParser) *MessageDecoder {
-	pd := &MessageDecoder{}
-	pd.DefaultInboundHandler = core.NewDefaultInboundHandler()
-	pd.idParser = idParser
-	pd.messageDeserializer = messageDeserializer
-	return pd
+	md := &MessageDecoder{}
+	md.DefaultInboundHandler = core.NewDefaultInboundHandler()
+	md.idParser = idParser
+	md.messageDeserializer = messageDeserializer
+	return md
 }
 
 // OnRead ipdlements InboundHandler.
-func (pd *MessageDecoder) OnRead(ctx *core.ChannelContext, msg interface{}) {
+func (md *MessageDecoder) OnRead(ctx *core.ChannelContext, msg interface{}) {
 	if buf, ok := msg.(bytes.ReadOnlyBuffer); ok {
-		id, msg, err := pd.idParser.DecodeID(buf)
+		id, msg, err := md.idParser.DecodeID(buf)
 		if err == nil {
-			result, err := pd.messageDeserializer.DecodePayload(id, msg)
+			result, err := md.messageDeserializer.DecodePayload(id, msg)
 
 			if err == nil {
 				var output []interface{}

@@ -18,20 +18,20 @@ type MessageDeserializer struct {
 }
 
 func NewMessageDeserializer(register message.Register, codec encoding.Codec) *MessageDeserializer {
-	pd := &MessageDeserializer{}
-	pd.DefaultInboundHandler = core.NewDefaultInboundHandler()
-	pd.codec = codec
-	pd.register = register
-	return pd
+	md := &MessageDeserializer{}
+	md.DefaultInboundHandler = core.NewDefaultInboundHandler()
+	md.codec = codec
+	md.register = register
+	return md
 }
 
 // OnRead ipdlements InboundHandler.
-func (pd *MessageDeserializer) OnRead(ctx *core.ChannelContext, msg interface{}) {
+func (md *MessageDeserializer) OnRead(ctx *core.ChannelContext, msg interface{}) {
 	if params, ok := msg.([]interface{}); ok && len(params) > 1 {
 		id := params[0]
 		msgBuf, ok := params[1].(bytes.ReadOnlyBuffer)
 		if ok {
-			result, err := pd.DecodePayload(id, msgBuf)
+			result, err := md.DecodePayload(id, msgBuf)
 
 			if err == nil {
 				var output []interface{}
@@ -50,14 +50,14 @@ func (pd *MessageDeserializer) OnRead(ctx *core.ChannelContext, msg interface{})
 	}
 }
 
-func (pd *MessageDeserializer) DecodePayload(msgID interface{}, data bytes.ReadOnlyBuffer) (interface{}, error) {
-	meta := pd.register.GetMetaByID(msgID)
+func (md *MessageDeserializer) DecodePayload(msgID interface{}, data bytes.ReadOnlyBuffer) (interface{}, error) {
+	meta := md.register.GetMetaByID(msgID)
 	if meta != nil {
 		msg := meta.CreateInstance()
 		if meta.Codec() != nil { // support for meta specified codec.
 			meta.Codec().Unmarshal(data.Bytes(), msg)
 		} else {
-			pd.codec.Unmarshal(data.Bytes(), msg)
+			md.codec.Unmarshal(data.Bytes(), msg)
 		}
 		return msg, nil
 	}
