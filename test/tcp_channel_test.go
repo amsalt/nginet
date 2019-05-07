@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/amsalt/log"
 	"github.com/amsalt/nginet/aio"
 	"github.com/amsalt/nginet/core"
 	"github.com/amsalt/nginet/core/tcp"
@@ -14,11 +15,14 @@ import (
 	"github.com/amsalt/nginet/message"
 	"github.com/amsalt/nginet/message/idparser"
 	"github.com/amsalt/nginet/message/packet"
-	"github.com/amsalt/log"
 )
 
 type tcpChannel struct {
 	Msg string
+}
+
+type tcpChannel2 struct {
+	Test string
 }
 
 func TestTCPChannel(t *testing.T) {
@@ -27,12 +31,17 @@ func TestTCPChannel(t *testing.T) {
 
 	register := message.NewRegister()
 	register.RegisterMsgByID(1, &tcpChannel{})
+	register.RegisterMsgByID(2, &tcpChannel2{})
 
 	parser := idparser.NewUint16ID()
 	codec := encoding.MustGetCodec(json.CodecJSON)
 
+	packetIdParser := handler.NewIDParser(register, parser)
+	messageSerializer := handler.NewMessageSerializer(register, codec)
+	messageDeserializer := handler.NewMessageDeserializer(register, codec)
+
 	processMgr := message.NewProcessorMgr(register)
-	processMgr.RegisterProcessorByID(1, func(ctx *core.ChannelContext, msg interface{}, args ...interface{}) {
+	processMgr.RegisterProcessor(&tcpChannel{}, func(ctx *core.ChannelContext, msg interface{}, args ...interface{}) {
 		if m, ok := msg.([]byte); ok {
 			log.Infof("tcpChannel handler: %+v", string(m))
 		} else {
@@ -43,7 +52,6 @@ func TestTCPChannel(t *testing.T) {
 		if err == nil {
 			ctx.Write(packet.NewRawPacket(1, byteArr))
 		}
-
 	})
 
 	s := core.GetAcceptorBuilder(core.TCPServBuilder).Build(
@@ -56,8 +64,8 @@ func TestTCPChannel(t *testing.T) {
 		log.Infof("new channel created, channelId is %+v", channel.ID())
 		channel.Pipeline().AddLast(nil, "PacketLengthDecoder", handler.NewPacketLengthDecoder(2))
 		channel.Pipeline().AddLast(nil, "PacketLengthPrepender", handler.NewPacketLengthPrepender(2))
-		channel.Pipeline().AddLast(nil, "serializer", handler.NewPacketSerializer(register, parser, codec))
-		channel.Pipeline().AddLast(nil, "deserializer", handler.NewPacketDeserializer(register, parser, codec))
+		channel.Pipeline().AddLast(nil, "MessageEncoder", handler.NewMessageEncoder(messageSerializer, packetIdParser))
+		channel.Pipeline().AddLast(nil, "MessageDecoder", handler.NewMessageDecoder(messageDeserializer, packetIdParser))
 		channel.Pipeline().AddLast(evtloop, "processor", handler.NewDefaultMessageHandler(processMgr))
 	})
 	addr, err := net.ResolveTCPAddr("tcp", ":7878")
@@ -73,8 +81,8 @@ func TestTCPChannel(t *testing.T) {
 	c.InitSubChannel(func(channel core.SubChannel) {
 		channel.Pipeline().AddLast(nil, "PacketLengthDecoder", handler.NewPacketLengthDecoder(2))
 		channel.Pipeline().AddLast(nil, "PacketLengthPrepender", handler.NewPacketLengthPrepender(2))
-		channel.Pipeline().AddLast(nil, "serializer", handler.NewPacketSerializer(register, parser, codec))
-		channel.Pipeline().AddLast(nil, "deserializer", handler.NewPacketDeserializer(register, parser, codec))
+		channel.Pipeline().AddLast(nil, "MessageEncoder", handler.NewMessageEncoder(messageSerializer, packetIdParser))
+		channel.Pipeline().AddLast(nil, "MessageDecoder", handler.NewMessageDecoder(messageDeserializer, packetIdParser))
 		channel.Pipeline().AddLast(nil, "processor", handler.NewDefaultMessageHandler(processMgr))
 	})
 	c.Connect(addr)
