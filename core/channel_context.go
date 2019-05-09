@@ -75,6 +75,10 @@ func (ctx *ChannelContext) Channel() Channel {
 	return ctx.pipeline.Channel()
 }
 
+func (ctx *ChannelContext) Attr() *AttrMap {
+	return ctx.Channel().Attr()
+}
+
 func (ctx *ChannelContext) Name() string {
 	return ctx.name
 }
