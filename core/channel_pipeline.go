@@ -13,6 +13,8 @@ type ChannelPipeline interface {
 
 	AddFirst(executor Executor, name string, h interface{})
 	AddLast(executor Executor, name string, h interface{})
+	AddAfter(afterName string, executor Executor, name string, handler interface{})
+	AddBefore(beforeName string, executor Executor, name string, handler interface{})
 	Channel() Channel
 }
 

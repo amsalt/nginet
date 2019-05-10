@@ -14,7 +14,6 @@ import (
 	"github.com/amsalt/nginet/handler"
 	"github.com/amsalt/nginet/message"
 	"github.com/amsalt/nginet/message/idparser"
-	"github.com/amsalt/nginet/message/packet"
 )
 
 type tcpChannel struct {
@@ -47,12 +46,12 @@ func TestTCPChannel(t *testing.T) {
 		} else {
 			log.Infof("tcpChannel handler: %+v", msg)
 		}
-
-		byteArr, err := codec.Marshal(&tcpChannel{Msg: "tcpChannel handler response data"})
-		if err == nil {
-			ctx.Write(packet.NewRawPacket(1, byteArr))
-			ctx.Close()
-		}
+		ctx.Close()
+		// byteArr, err := codec.Marshal(&tcpChannel{Msg: "tcpChannel handler response data"})
+		// if err == nil {
+		// 	ctx.Write(packet.NewRawPacket(1, byteArr))
+		// 	ctx.Close()
+		// }
 	})
 
 	s := core.GetAcceptorBuilder(core.TCPServBuilder).Build(
