@@ -3,8 +3,8 @@ package ws
 import (
 	"net/http"
 
-	"github.com/amsalt/nginet/core"
 	"github.com/amsalt/log"
+	"github.com/amsalt/nginet/core"
 	"github.com/gorilla/websocket"
 )
 
@@ -29,17 +29,19 @@ func NewClientChannel(opts ...*Options) core.ConnectorChannel {
 	return c
 }
 
-func (c *client) Connect(addr interface{}) {
+func (c *client) Connect(addr interface{}) (core.SubChannel, error) {
 	log.Debugf("ws Connect addr: %+v", addr)
 	d := &websocket.Dialer{}
 
 	// TODO: addr
 	conn, response, err := d.Dial(addr.(string), nil)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	c.conn = conn
 	c.response = response
-	c.FireConnect(core.NewDefaultSubChannel(newRawConn(conn), c.opts.WriteBufSize, c.opts.ReadBufSize))
+	subChannel := core.NewDefaultSubChannel(newRawConn(conn), c.opts.WriteBufSize, c.opts.ReadBufSize)
+	c.FireConnect(subChannel)
+	return subChannel, nil
 }

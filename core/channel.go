@@ -74,7 +74,7 @@ type ConnectorChannel interface {
 	InitSubChannel(sub InitChannelCb)
 
 	// Connect connects to the special address.
-	Connect(addr interface{})
+	Connect(addr interface{}) (SubChannel, error)
 }
 
 // SubChannel represents a server-side connection connected by a client.

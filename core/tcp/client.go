@@ -25,7 +25,7 @@ func NewClientChannel(opts ...*Options) core.ConnectorChannel {
 	return c
 }
 
-func (c *client) Connect(addr interface{}) {
+func (c *client) Connect(addr interface{}) (core.SubChannel, error) {
 	netaddr, ok := addr.(net.Addr)
 	if !ok {
 		panic("tcp.client connect option must be net.Addr type")
@@ -33,8 +33,10 @@ func (c *client) Connect(addr interface{}) {
 	c.addr = netaddr
 	conn, err := net.Dial(netaddr.Network(), netaddr.String())
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	c.FireConnect(core.NewDefaultSubChannel(newRawConn(conn), c.opts.ReadBufSize, c.opts.WriteBufSize))
+	subChannel := core.NewDefaultSubChannel(newRawConn(conn), c.opts.ReadBufSize, c.opts.WriteBufSize)
+	c.FireConnect(subChannel)
+	return subChannel, nil
 }
