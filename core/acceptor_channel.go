@@ -31,6 +31,10 @@ func (acceptor *Acceptor) InitSubChannel(sub InitChannelCb) {
 	acceptor.initCb = sub
 }
 
+func (acceptor *Acceptor) SubChannelInitializer() InitChannelCb {
+	return acceptor.initCb
+}
+
 func (acceptor *Acceptor) initChannel(c SubChannel) {
 	acceptor.initCb(c)
 }

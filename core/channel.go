@@ -46,6 +46,8 @@ type AcceptorChannel interface {
 	// InitSubChannel set the InitChannel function which defines the behaviors when new sub channel created.
 	InitSubChannel(sub InitChannelCb)
 
+	SubChannelInitializer() InitChannelCb
+
 	// Listen announces on the local network address.
 	Listen(addr net.Addr)
 
@@ -72,6 +74,8 @@ type ConnectorChannel interface {
 
 	// InitSubChannel set the InitChannel function which defines the behaviors when new sub channel created.
 	InitSubChannel(sub InitChannelCb)
+
+	SubChannelInitializer() InitChannelCb
 
 	// Connect connects to the special address.
 	Connect(addr interface{}) (SubChannel, error)
