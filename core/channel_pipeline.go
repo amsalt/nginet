@@ -1,5 +1,7 @@
 package core
 
+import "github.com/amsalt/log"
+
 // ChannelPipeline is a list of ChannelHandler which handles or intercepts inbound events and outbound operations of a
 // ChannelPipeline implements an advanced form of the Intercepting Filter pattern
 // to give a user full control over how an event is handled and how the ChannelHandler in a pipeline
@@ -75,6 +77,16 @@ func (cp *channelPipeline) AddLast(executor Executor, name string, handler inter
 	cp.addLast0(newCtx.ChannelContext)
 }
 
+func (cp *channelPipeline) AddAfter(afterName string, executor Executor, name string, handler interface{}) {
+	newCtx := NewDefaultChannelContext(executor, name, cp, handler)
+	cp.addAfter0(afterName, newCtx.ChannelContext)
+}
+
+func (cp *channelPipeline) AddBefore(beforeName string, executor Executor, name string, handler interface{}) {
+	newCtx := NewDefaultChannelContext(executor, name, cp, handler)
+	cp.addBefore0(beforeName, newCtx.ChannelContext)
+}
+
 func (cp *channelPipeline) addLast0(newCtx *ChannelContext) {
 	prev := cp.tail.prev
 
@@ -93,4 +105,52 @@ func (cp *channelPipeline) addFirst0(newCtx *ChannelContext) {
 
 	cp.head.next = newCtx
 	next.prev = newCtx
+}
+
+func (cp *channelPipeline) addBefore0(name string, newCtx *ChannelContext) bool {
+	search := cp.head.ChannelContext
+	found := false
+	for search != nil {
+		if search.Name() == name {
+			prev := search.prev
+			newCtx.prev = prev
+			newCtx.next = search
+
+			prev.next = newCtx
+			search.prev = newCtx
+
+			found = true
+		} else {
+			search = search.next
+		}
+	}
+	if !found {
+		log.Warningf("ChannelPipline addBefore failed not found name: %+v", name)
+	}
+	return found
+}
+
+func (cp *channelPipeline) addAfter0(name string, newCtx *ChannelContext) bool {
+	search := cp.head.ChannelContext
+	found := false
+
+	for search != cp.tail.ChannelContext {
+		if search.Name() == name {
+			next := search.next
+			newCtx.prev = search
+			newCtx.next = next
+
+			search.next = newCtx
+			next.prev = newCtx
+
+			found = true
+		} else {
+			search = search.next
+		}
+	}
+
+	if !found {
+		log.Warningf("ChannelPipline addAfter failed not found name: %+v", name)
+	}
+	return found
 }
