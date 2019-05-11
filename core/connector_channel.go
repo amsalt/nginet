@@ -28,7 +28,6 @@ func (c *Connector) SubChannelInitializer() InitChannelCb {
 
 func (c *Connector) initChannel(channel SubChannel) {
 	c.initCb(channel)
-	log.Debugf("Connector.FireConnect init channel %+v", channel)
 	c.subChannel = channel
 }
 

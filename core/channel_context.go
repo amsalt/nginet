@@ -31,10 +31,15 @@ type ChannelContext struct {
 func newChannelContext(executor Executor, name string, pipeline ChannelPipeline, handler interface{}) *ChannelContext {
 	ctx := &ChannelContext{name: name, executor: executor}
 	ctx.init(pipeline, handler)
-	log.Infof("Add new handler: %+v, inbound: %+v, outbound: %+v", name, ctx.inbound, ctx.outbound)
+	if name == "HeadContext" {
+		log.Debugf("+--------------------ChannelHandler list------------------------+")
+	} else if name == "TailContext" {
+		log.Debugf("+---------------------------------------------------------------+")
+	} else {
+		log.Debugf("+------ name:%-22s isInbound: %-4v isOutbound: %-4v", name, ctx.inbound, ctx.outbound)
+	}
 	return ctx
 }
-
 func (ctx *ChannelContext) init(pipeline ChannelPipeline, handler interface{}) {
 	ctx.pipeline = pipeline
 
