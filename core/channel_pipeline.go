@@ -82,11 +82,35 @@ func (cp *channelPipeline) AddLast(executor Executor, name string, handler inter
 func (cp *channelPipeline) AddAfter(afterName string, executor Executor, name string, handler interface{}) {
 	newCtx := NewDefaultChannelContext(executor, name, cp, handler)
 	cp.addAfter0(afterName, newCtx.ChannelContext)
+
+	ctx := cp.head.ChannelContext
+	for ctx != nil {
+		if ctx.Name() == "HeadContext" {
+			log.Debugf("+--------------------ChannelHandler list------------------------+")
+		} else if ctx.Name() == "TailContext" {
+			log.Debugf("+---------------------------------------------------------------+")
+		} else {
+			log.Debugf("+------ name:%-22s isInbound: %-4v isOutbound: %-4v", ctx.Name(), ctx.inbound, ctx.outbound)
+		}
+		ctx = ctx.next
+	}
 }
 
 func (cp *channelPipeline) AddBefore(beforeName string, executor Executor, name string, handler interface{}) {
 	newCtx := NewDefaultChannelContext(executor, name, cp, handler)
 	cp.addBefore0(beforeName, newCtx.ChannelContext)
+
+	ctx := cp.head.ChannelContext
+	for ctx != nil {
+		if ctx.Name() == "HeadContext" {
+			log.Debugf("+--------------------ChannelHandler list------------------------+")
+		} else if ctx.Name() == "TailContext" {
+			log.Debugf("+---------------------------------------------------------------+")
+		} else {
+			log.Debugf("+------ name:%-22s isInbound: %-4v isOutbound: %-4v", ctx.Name(), ctx.inbound, ctx.outbound)
+		}
+		ctx = ctx.next
+	}
 }
 
 func (cp *channelPipeline) addLast0(newCtx *ChannelContext) {
@@ -122,6 +146,7 @@ func (cp *channelPipeline) addBefore0(name string, newCtx *ChannelContext) bool 
 			search.prev = newCtx
 
 			found = true
+			return found
 		} else {
 			search = search.next
 		}
@@ -146,6 +171,7 @@ func (cp *channelPipeline) addAfter0(name string, newCtx *ChannelContext) bool {
 			next.prev = newCtx
 
 			found = true
+			return found
 		} else {
 			search = search.next
 		}
