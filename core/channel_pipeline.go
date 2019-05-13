@@ -59,6 +59,11 @@ func (cp *channelPipeline) FireError(err error) InboundInvoker {
 	return cp
 }
 
+func (cp *channelPipeline) FireOnEvent(event interface{}) InboundInvoker {
+	invokeOnEvent0(cp.head.ChannelContext, event)
+	return cp
+}
+
 func (cp *channelPipeline) FireRead(msg interface{}) InboundInvoker {
 	invokeRead0(cp.head.ChannelContext, msg)
 	return cp

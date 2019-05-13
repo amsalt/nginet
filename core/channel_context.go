@@ -151,6 +151,21 @@ func (ctx *ChannelContext) FireRead(msg interface{}) InboundInvoker {
 	return ctx
 }
 
+func (ctx *ChannelContext) FireOnEvent(event interface{}) InboundInvoker {
+	invokeOnEvent0(ctx.findNextInboundContext(), event)
+	return ctx
+}
+
+func invokeOnEvent0(next *ChannelContext, msg interface{}) {
+	if next.Executor() != nil {
+		next.Executor().Execute(func() {
+			next.doOnEvent(msg)
+		})
+	} else {
+		next.doOnEvent(msg)
+	}
+}
+
 func invokeRead0(next *ChannelContext, msg interface{}) {
 	if next.Executor() != nil {
 		next.Executor().Execute(func() {
@@ -159,11 +174,14 @@ func invokeRead0(next *ChannelContext, msg interface{}) {
 	} else {
 		next.doRead(msg)
 	}
-
 }
 
 func (ctx *ChannelContext) doRead(msg interface{}) {
 	ctx.inHandler.OnRead(ctx, msg)
+}
+
+func (ctx *ChannelContext) doOnEvent(event interface{}) {
+	ctx.inHandler.OnEvent(ctx, event)
 }
 
 func (ctx *ChannelContext) Write(msg interface{}) OutboundInvoker {
@@ -191,7 +209,6 @@ func invokeWrite0(next *ChannelContext, msg interface{}) {
 	} else {
 		next.doWrite(msg)
 	}
-
 }
 
 func (ctx *ChannelContext) doWrite(msg interface{}) {
@@ -245,6 +262,10 @@ func (hctx *HeadContext) OnDisconnect(ctx *ChannelContext) {
 	ctx.FireDisconnect()
 }
 
+func (hctx *HeadContext) OnEvent(ctx *ChannelContext, event interface{}) {
+	ctx.FireOnEvent(event)
+}
+
 // OnWrite processes a write event.
 func (hctx *HeadContext) OnWrite(ctx *ChannelContext, msg interface{}) {
 	if msg == nil {
@@ -272,6 +293,8 @@ func NewTailContext(pipeline ChannelPipeline) *TailContext {
 	tctx.ChannelContext = newChannelContext(nil, "TailContext", pipeline, tctx)
 	return tctx
 }
+
+func (hctx *TailContext) OnEvent(ctx *ChannelContext, event interface{}) { /*do nothing: stop at tail*/ }
 
 // OnRead do nothing to stop the pipeline.
 func (tctx *TailContext) OnRead(ctx *ChannelContext, msg interface{}) { /*do nothing: stop at tail*/ }

@@ -27,6 +27,7 @@ func NewMessageDecoder(messageDeserializer *MessageDeserializer, idParser *IDPar
 func (md *MessageDecoder) OnRead(ctx *core.ChannelContext, msg interface{}) {
 	if buf, ok := msg.(bytes.ReadOnlyBuffer); ok {
 		id, msg, err := md.idParser.DecodeID(buf)
+
 		if err == nil {
 			result, err := md.messageDeserializer.DecodePayload(id, msg)
 

@@ -14,6 +14,10 @@ type InboundHandler interface {
 	// OnRead called when reads new data.
 	OnRead(ctx *ChannelContext, msg interface{})
 
+	// OnRead called when event triggered.
+	OnEvent(ctx *ChannelContext, event interface{})
+
+	// OnError called when error occurred
 	OnError(ctx *ChannelContext, err error)
 }
 
@@ -39,6 +43,10 @@ func (ih *DefaultInboundHandler) OnDisconnect(ctx *ChannelContext) {
 
 func (ih *DefaultInboundHandler) OnRead(ctx *ChannelContext, msg interface{}) {
 	ctx.FireRead(msg)
+}
+
+func (ih *DefaultInboundHandler) OnEvent(ctx *ChannelContext, event interface{}) {
+	ctx.FireOnEvent(event)
 }
 
 func (ih *DefaultInboundHandler) OnError(ctx *ChannelContext, err error) {

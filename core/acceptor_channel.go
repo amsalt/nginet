@@ -65,6 +65,11 @@ func (acceptor *Acceptor) FireRead(msg interface{}) InboundInvoker {
 	panic("Acceptor.FireRead not implement.")
 }
 
+// FireOnEvent fires a  event.
+func (acceptor *Acceptor) FireOnEvent(event interface{}) InboundInvoker {
+	return acceptor.Pipeline().FireOnEvent(event)
+}
+
 func (acceptor *Acceptor) FireError(err error) InboundInvoker {
 	return acceptor.Pipeline().FireError(err)
 }

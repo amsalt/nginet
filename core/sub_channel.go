@@ -173,6 +173,11 @@ func (dsc *DefaultSubChannel) FireError(err error) InboundInvoker {
 	return dsc
 }
 
+func (dsc *DefaultSubChannel) FireOnEvent(event interface{}) InboundInvoker {
+	dsc.Pipeline().FireOnEvent(event)
+	return dsc
+}
+
 // RawConn returns the raw connection.
 func (dsc *DefaultSubChannel) RawConn() RawConn {
 	return dsc.conn

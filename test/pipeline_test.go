@@ -3,9 +3,9 @@ package test
 import (
 	"testing"
 
+	"github.com/amsalt/log"
 	"github.com/amsalt/nginet/bytes"
 	"github.com/amsalt/nginet/core"
-	"github.com/amsalt/log"
 )
 
 type Msg struct {
@@ -35,6 +35,11 @@ func (ih *inhandler1) OnError(ctx *core.ChannelContext, err error) {
 	ctx.FireError(err)
 }
 
+func (ih *inhandler1) OnEvent(ctx *core.ChannelContext, event interface{}) {
+	log.Infof("OnEvent: %+v", event)
+	ctx.FireOnEvent(event)
+}
+
 // OnDisconnect called when channel disconnected.
 func (ih *inhandler1) OnDisconnect(ctx *core.ChannelContext) {
 	log.Infof("client disconnected: %+v", ctx)
@@ -62,6 +67,11 @@ func (ih *inhandler2) OnConnect(ctx *core.ChannelContext, channel core.Channel) 
 func (ih *inhandler2) OnDisconnect(ctx *core.ChannelContext) {
 	log.Infof("server disconnected: %+v", ctx)
 	ctx.FireDisconnect()
+}
+
+func (ih *inhandler2) OnEvent(ctx *core.ChannelContext, event interface{}) {
+	log.Infof("OnEvent: %+v", event)
+	ctx.FireOnEvent(event)
 }
 
 func (ih *inhandler2) OnError(ctx *core.ChannelContext, err error) {
@@ -96,6 +106,11 @@ func (ih *inouthandler) OnWrite(ctx *core.ChannelContext, msg interface{}) {
 
 func (ih *inouthandler) OnRead(ctx *core.ChannelContext, msg interface{}) {
 	ctx.FireRead(msg)
+}
+
+func (ih *inouthandler) OnEvent(ctx *core.ChannelContext, event interface{}) {
+	log.Infof("OnEvent: %+v", event)
+	ctx.FireOnEvent(event)
 }
 
 // OnConnect called when new channel connected.
