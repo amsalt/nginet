@@ -68,6 +68,7 @@ func TestTCPChannel(t *testing.T) {
 		channel.Pipeline().AddLast(nil, "inhandler1", &inhandler1{})
 		channel.Pipeline().AddLast(nil, "PacketLengthDecoder", handler.NewPacketLengthDecoder(2))
 		channel.Pipeline().AddLast(nil, "PacketLengthPrepender", handler.NewPacketLengthPrepender(2))
+		channel.Pipeline().AddLast(nil, "rc4", handler.NewRc4Cipher("example"))
 		channel.Pipeline().AddLast(nil, "MessageEncoder", handler.NewMessageEncoder(messageSerializer, packetIdParser))
 		channel.Pipeline().AddLast(nil, "MessageDecoder", handler.NewMessageDecoder(messageDeserializer, packetIdParser))
 		channel.Pipeline().AddLast(evtloop, "processor", handler.NewDefaultMessageHandler(processMgr))
@@ -85,6 +86,7 @@ func TestTCPChannel(t *testing.T) {
 	c.InitSubChannel(func(channel core.SubChannel) {
 		channel.Pipeline().AddLast(nil, "PacketLengthDecoder", handler.NewPacketLengthDecoder(2))
 		channel.Pipeline().AddLast(nil, "PacketLengthPrepender", handler.NewPacketLengthPrepender(2))
+		channel.Pipeline().AddLast(nil, "rc4", handler.NewRc4Cipher("example"))
 		channel.Pipeline().AddLast(nil, "MessageEncoder", handler.NewMessageEncoder(messageSerializer, packetIdParser))
 		channel.Pipeline().AddLast(nil, "MessageDecoder", handler.NewMessageDecoder(messageDeserializer, packetIdParser))
 		channel.Pipeline().AddLast(nil, "processor", handler.NewDefaultMessageHandler(processMgr))
@@ -93,7 +95,7 @@ func TestTCPChannel(t *testing.T) {
 	log.Infof("client remote address:%+v", c.RemoteAddr().String())
 
 	time.Sleep(2 * time.Second)
-	c.Write(&tcpChannel{Msg: "tcp channel handler test"})
+	c.Write(&tcpChannel{Msg: "tcp channel handler example"})
 	time.Sleep(15 * time.Second)
 	c.Close()
 }
