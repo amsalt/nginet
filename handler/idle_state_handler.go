@@ -58,7 +58,6 @@ func (ish *IdleStateHandler) OnConnect(ctx *core.ChannelContext, channel core.Ch
 }
 
 func (ish *IdleStateHandler) OnDisconnect(ctx *core.ChannelContext) {
-	ish.stop = true
 	ish.abort(ctx)
 	ctx.FireDisconnect()
 }
@@ -85,6 +84,7 @@ func (ish *IdleStateHandler) run(ctx *core.ChannelContext) {
 }
 
 func (ish *IdleStateHandler) abort(ctx *core.ChannelContext) {
+	ish.stop = true
 	ish.readCheckTimer.Stop()
 	ish.writeCheckTimer.Stop()
 }
