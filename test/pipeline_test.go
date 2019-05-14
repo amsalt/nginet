@@ -18,6 +18,7 @@ type inhandler1 struct {
 func (ih *inhandler1) OnRead(ctx *core.ChannelContext, msg interface{}) {
 	log.Infof("inhandler1 msg: %+v", msg)
 	ctx.FireRead(msg)
+
 	// var head = make([]byte, 2)
 	// binary.BigEndian.PutUint16(head, 7)
 	// time.Sleep(time.Second)
@@ -38,6 +39,7 @@ func (ih *inhandler1) OnError(ctx *core.ChannelContext, err error) {
 func (ih *inhandler1) OnEvent(ctx *core.ChannelContext, event interface{}) {
 	log.Infof("OnEvent: %+v", event)
 	ctx.FireEvent(event)
+	ctx.Close()
 }
 
 // OnDisconnect called when channel disconnected.
