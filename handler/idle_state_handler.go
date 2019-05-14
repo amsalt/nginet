@@ -54,6 +54,7 @@ func NewIdleStateHandler(readTimeoutSec, writeTimeoutSec int, needAllTimeout boo
 
 func (ish *IdleStateHandler) OnConnect(ctx *core.ChannelContext, channel core.Channel) {
 	ish.run(ctx)
+	ctx.FireConnect(channel)
 }
 
 func (ish *IdleStateHandler) OnDisconnect(ctx *core.ChannelContext) {
