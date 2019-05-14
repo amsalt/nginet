@@ -37,7 +37,7 @@ func (ih *inhandler1) OnError(ctx *core.ChannelContext, err error) {
 
 func (ih *inhandler1) OnEvent(ctx *core.ChannelContext, event interface{}) {
 	log.Infof("OnEvent: %+v", event)
-	ctx.FireOnEvent(event)
+	ctx.FireEvent(event)
 }
 
 // OnDisconnect called when channel disconnected.
@@ -71,7 +71,7 @@ func (ih *inhandler2) OnDisconnect(ctx *core.ChannelContext) {
 
 func (ih *inhandler2) OnEvent(ctx *core.ChannelContext, event interface{}) {
 	log.Infof("OnEvent: %+v", event)
-	ctx.FireOnEvent(event)
+	ctx.FireEvent(event)
 }
 
 func (ih *inhandler2) OnError(ctx *core.ChannelContext, err error) {
@@ -110,7 +110,7 @@ func (ih *inouthandler) OnRead(ctx *core.ChannelContext, msg interface{}) {
 
 func (ih *inouthandler) OnEvent(ctx *core.ChannelContext, event interface{}) {
 	log.Infof("OnEvent: %+v", event)
-	ctx.FireOnEvent(event)
+	ctx.FireEvent(event)
 }
 
 // OnConnect called when new channel connected.

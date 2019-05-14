@@ -46,7 +46,7 @@ func (ih *DefaultInboundHandler) OnRead(ctx *ChannelContext, msg interface{}) {
 }
 
 func (ih *DefaultInboundHandler) OnEvent(ctx *ChannelContext, event interface{}) {
-	ctx.FireOnEvent(event)
+	ctx.FireEvent(event)
 }
 
 func (ih *DefaultInboundHandler) OnError(ctx *ChannelContext, err error) {

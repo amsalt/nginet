@@ -151,7 +151,7 @@ func (ctx *ChannelContext) FireRead(msg interface{}) InboundInvoker {
 	return ctx
 }
 
-func (ctx *ChannelContext) FireOnEvent(event interface{}) InboundInvoker {
+func (ctx *ChannelContext) FireEvent(event interface{}) InboundInvoker {
 	invokeOnEvent0(ctx.findNextInboundContext(), event)
 	return ctx
 }
@@ -263,7 +263,7 @@ func (hctx *HeadContext) OnDisconnect(ctx *ChannelContext) {
 }
 
 func (hctx *HeadContext) OnEvent(ctx *ChannelContext, event interface{}) {
-	ctx.FireOnEvent(event)
+	ctx.FireEvent(event)
 }
 
 // OnWrite processes a write event.

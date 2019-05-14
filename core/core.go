@@ -55,7 +55,7 @@ type InboundInvoker interface {
 	// FireRead fire a read event when new data comes.
 	FireRead(msg interface{}) InboundInvoker
 
-	FireOnEvent(event interface{}) InboundInvoker
+	FireEvent(event interface{}) InboundInvoker
 
 	FireError(err error) InboundInvoker
 }

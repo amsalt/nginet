@@ -60,9 +60,12 @@ func TestTCPChannel(t *testing.T) {
 		tcp.WithWriteBufSize(1024),
 		tcp.WithMaxConnNum(100),
 	)
+
 	s.Pipeline().AddLast(nil, "inhandler1", &inhandler1{})
 	s.InitSubChannel(func(channel core.SubChannel) {
 		log.Infof("new channel created, channelId is %+v", channel.ID())
+		channel.Pipeline().AddLast(nil, "IdleStateHandler", handler.NewIdleStateHandler(5, 5, false))
+		channel.Pipeline().AddLast(nil, "inhandler1", &inhandler1{})
 		channel.Pipeline().AddLast(nil, "PacketLengthDecoder", handler.NewPacketLengthDecoder(2))
 		channel.Pipeline().AddLast(nil, "PacketLengthPrepender", handler.NewPacketLengthPrepender(2))
 		channel.Pipeline().AddLast(nil, "MessageEncoder", handler.NewMessageEncoder(messageSerializer, packetIdParser))

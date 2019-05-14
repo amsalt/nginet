@@ -173,8 +173,8 @@ func (dsc *DefaultSubChannel) FireError(err error) InboundInvoker {
 	return dsc
 }
 
-func (dsc *DefaultSubChannel) FireOnEvent(event interface{}) InboundInvoker {
-	dsc.Pipeline().FireOnEvent(event)
+func (dsc *DefaultSubChannel) FireEvent(event interface{}) InboundInvoker {
+	dsc.Pipeline().FireEvent(event)
 	return dsc
 }
 

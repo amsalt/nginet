@@ -50,8 +50,8 @@ func (c *Connector) FireRead(msg interface{}) InboundInvoker {
 	panic("not implement.")
 }
 
-func (c *Connector) FireOnEvent(event interface{}) InboundInvoker {
-	return c.Pipeline().FireOnEvent(event)
+func (c *Connector) FireEvent(event interface{}) InboundInvoker {
+	return c.Pipeline().FireEvent(event)
 }
 
 func (c *Connector) FireError(err error) InboundInvoker {
