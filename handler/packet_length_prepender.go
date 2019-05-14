@@ -4,9 +4,9 @@ import (
 	"encoding/binary"
 	"errors"
 
+	"github.com/amsalt/log"
 	"github.com/amsalt/nginet/bytes"
 	"github.com/amsalt/nginet/core"
-	"github.com/amsalt/log"
 )
 
 var ErrOutBoundEventType = errors.New("Invalid type for OnOutboundEvent args")
@@ -48,15 +48,18 @@ func (plp *PacketLengthPrepender) SetByteOrder(byteorder binary.ByteOrder) *Pack
 
 // OnOutboundEvent process outbound event.
 func (plp *PacketLengthPrepender) OnWrite(ctx *core.ChannelContext, msg interface{}) {
-	data, err := plp.encode(ctx, msg)
-	if err == nil {
-		log.Debugf("PacketLengthPrepender.OnWrite result: %+v", data)
-		ctx.FireWrite(data)
+	if rawBytes, ok := msg.([]byte); ok {
+		ctx.FireWrite(rawBytes)
 	} else {
-		log.Errorf("PacketLengthPrepender.OnWrite failed: %+v", err)
-		ctx.FireError(err)
+		data, err := plp.encode(ctx, msg)
+		if err == nil {
+			log.Debugf("PacketLengthPrepender.OnWrite result: %+v", data)
+			ctx.FireWrite(data)
+		} else {
+			log.Errorf("PacketLengthPrepender.OnWrite failed: %+v", err)
+			ctx.FireError(err)
+		}
 	}
-	return
 }
 
 // append fixed length field to header.

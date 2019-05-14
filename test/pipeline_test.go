@@ -16,7 +16,12 @@ type inhandler1 struct {
 }
 
 func (ih *inhandler1) OnRead(ctx *core.ChannelContext, msg interface{}) {
-	log.Infof("inhandler1 msg: %+v", msg)
+	if m, ok := msg.(bytes.ReadOnlyBuffer); ok {
+		log.Infof("inhandler1 msg: %+v", string(m.Bytes()))
+	} else {
+		log.Infof("inhandler1 msg: %+v", msg)
+	}
+
 	ctx.FireRead(msg)
 
 	// var head = make([]byte, 2)

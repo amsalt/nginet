@@ -25,16 +25,20 @@ func NewMessageEncoder(messageSerializer *MessageSerializer, idParser *IDParser)
 
 func (me *MessageEncoder) OnWrite(ctx *core.ChannelContext, msg interface{}) {
 	log.Debugf("MessageEncoder OnWrite: %+v", msg)
-	buf, err := me.idParser.EncodeID(msg)
-	if err != nil {
-		ctx.FireError(err)
-		return
-	}
+	if rawBytes, ok := msg.([]byte); ok {
+		ctx.FireWrite(rawBytes)
+	} else {
+		buf, err := me.idParser.EncodeID(msg)
+		if err != nil {
+			ctx.FireError(err)
+			return
+		}
 
-	err = me.messageSerializer.EncodePayload(buf, msg)
-	if err != nil {
-		ctx.FireError(err)
-		return
+		err = me.messageSerializer.EncodePayload(buf, msg)
+		if err != nil {
+			ctx.FireError(err)
+			return
+		}
+		ctx.FireWrite(buf)
 	}
-	ctx.FireWrite(buf)
 }

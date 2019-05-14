@@ -29,7 +29,9 @@ func NewMessageSerializer(register message.Register, codec encoding.Codec) *Mess
 }
 
 func (ms *MessageSerializer) OnWrite(ctx *core.ChannelContext, msg interface{}) {
-	if params, ok := msg.([]interface{}); ok && len(params) > 1 {
+	if rawBytes, ok := msg.([]byte); ok {
+		ctx.FireWrite(rawBytes)
+	} else if params, ok := msg.([]interface{}); ok && len(params) > 1 {
 		idBuf := params[0]
 		msgOrigin := params[1]
 		buf, ok := idBuf.(bytes.WriteOnlyBuffer)
@@ -47,7 +49,6 @@ func (ms *MessageSerializer) OnWrite(ctx *core.ChannelContext, msg interface{}) 
 	} else {
 		ctx.FireError(errors.New("MessageSerializer.OnWrite invalid msg type, an array required."))
 	}
-
 }
 
 func (ps *MessageSerializer) EncodePayload(bufWithID bytes.WriteOnlyBuffer, msg interface{}) error {

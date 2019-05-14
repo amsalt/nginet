@@ -61,13 +61,17 @@ func (ip *IDParser) OnDisconnect(ctx *core.ChannelContext) {
 // 		arr[0] is bytes.WriteOnlyBuffer with message ID.
 // 		arr[1] is original message object.
 func (ip *IDParser) OnWrite(ctx *core.ChannelContext, msg interface{}) {
-	idBuf, err := ip.EncodeID(msg)
-	if err == nil {
-		var output []interface{}
-		output = append(output, idBuf, msg)
-		ctx.FireWrite(output)
+	if rawBytes, ok := msg.([]byte); ok {
+		ctx.FireWrite(rawBytes)
 	} else {
-		ctx.FireError(err)
+		idBuf, err := ip.EncodeID(msg)
+		if err == nil {
+			var output []interface{}
+			output = append(output, idBuf, msg)
+			ctx.FireWrite(output)
+		} else {
+			ctx.FireError(err)
+		}
 	}
 }
 
