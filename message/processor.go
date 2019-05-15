@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/amsalt/nginet/core"
-	"github.com/amsalt/nginet/exception"
+	"github.com/amsalt/nginet/safe"
 )
 
 // MsgID2ProcessorMap is an map which holds the mapping relation of message ID and its processor.
@@ -28,7 +28,7 @@ func (p *Processor) Call(ctx *core.ChannelContext, msg interface{}, args ...inte
 }
 
 func (p *Processor) SafeCall(ctx *core.ChannelContext, msg interface{}, args ...interface{}) {
-	exception.Safecall(func() {
+	safe.Call(func() {
 		p.Call(ctx, msg, args...)
 	})
 

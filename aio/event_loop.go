@@ -3,8 +3,8 @@ package aio
 import (
 	"time"
 
-	"github.com/amsalt/nginet/exception"
 	"github.com/amsalt/log"
+	"github.com/amsalt/nginet/safe"
 )
 
 // EventLoop schedules event in one goroutine.
@@ -66,7 +66,7 @@ func (el *EventLoop) loop() {
 		for _, task := range copyList {
 			switch t := task.(type) {
 			case func():
-				exception.Safecall(t)
+				safe.Call(t)
 			case nil:
 				// no more event
 				break

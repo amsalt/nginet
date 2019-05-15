@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/amsalt/nginet/exception"
+	"github.com/amsalt/nginet/safe"
 )
 
 const (
@@ -182,7 +182,7 @@ type worker struct {
 }
 
 func (w *worker) start() {
-	exception.TryCatch(func() {
+	safe.TryCatch(func() {
 		go w.run()
 	}, func() {
 		w.pool.releaseW(w)
