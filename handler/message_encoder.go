@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/amsalt/log"
+	"github.com/amsalt/nginet/bytes"
 	"github.com/amsalt/nginet/core"
 )
 
@@ -25,20 +26,27 @@ func NewMessageEncoder(messageSerializer *MessageSerializer, idParser *IDParser)
 
 func (me *MessageEncoder) OnWrite(ctx *core.ChannelContext, msg interface{}) {
 	log.Debugf("MessageEncoder OnWrite: %+v", msg)
-	if rawBytes, ok := msg.([]byte); ok {
-		ctx.FireWrite(rawBytes)
+	if _, ok := msg.([]byte); ok {
+		ctx.FireWrite(msg)
+	} else if _, ok := msg.(bytes.WriteOnlyBuffer); ok {
+		ctx.FireWrite(msg)
 	} else {
-		buf, err := me.idParser.EncodeID(msg)
+		buf, err := me.encode(msg)
 		if err != nil {
 			ctx.FireError(err)
-			return
+		} else {
+			ctx.FireWrite(buf)
 		}
 
-		err = me.messageSerializer.EncodePayload(buf, msg)
-		if err != nil {
-			ctx.FireError(err)
-			return
-		}
-		ctx.FireWrite(buf)
 	}
+}
+
+func (me *MessageEncoder) encode(msg interface{}) (bytes.WriteOnlyBuffer, error) {
+	buf, id, err := me.idParser.EncodeID(msg)
+	if err != nil {
+		return nil, err
+	}
+
+	err = me.messageSerializer.EncodePayload(buf, msg, id)
+	return buf, err
 }

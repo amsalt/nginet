@@ -60,8 +60,8 @@ func (c *Connector) FireError(err error) InboundInvoker {
 
 // Wrapper method for SubChannel
 
-func (c *Connector) Write(msg interface{}) error {
-	return c.subChannel.Write(msg)
+func (c *Connector) Write(msg interface{}, extra ...interface{}) error {
+	return c.subChannel.Write(msg, extra...)
 }
 
 // LocalAddr returns the local addr.

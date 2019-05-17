@@ -4,8 +4,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/amsalt/nginet/core"
 	"github.com/amsalt/log"
+	"github.com/amsalt/nginet/core"
 )
 
 // server represents a tcp server.
@@ -30,7 +30,7 @@ func newServerChannel(opts *serverOptions) core.AcceptorChannel {
 }
 
 // Write writes message to opposite side.
-func (s *server) Write(msg interface{}) error {
+func (s *server) Write(msg interface{}, extra ...interface{}) error {
 	// nothing to do.
 	return nil
 }

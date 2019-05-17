@@ -107,9 +107,18 @@ func (dsc *DefaultSubChannel) writeloop() {
 }
 
 // Write writes message to opposite side.
-func (dsc *DefaultSubChannel) Write(msg interface{}) (err error) {
+func (dsc *DefaultSubChannel) Write(msg interface{}, extra ...interface{}) (err error) {
+	var output interface{}
+	var combines []interface{}
+	if len(extra) > 0 {
+		combines = append(combines, msg, extra[0])
+		output = combines
+	} else {
+		output = msg
+	}
+
 	select {
-	case dsc.writeBuf <- msg:
+	case dsc.writeBuf <- output:
 	case <-dsc.closeChan:
 		err = ErrConnLost
 	default:

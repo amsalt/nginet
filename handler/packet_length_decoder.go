@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/amsalt/log"
 	"github.com/amsalt/nginet/bytes"
 	"github.com/amsalt/nginet/core"
-	"github.com/amsalt/log"
 )
 
 const (

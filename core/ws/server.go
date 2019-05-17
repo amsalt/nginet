@@ -5,8 +5,8 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/amsalt/nginet/core"
 	"github.com/amsalt/log"
+	"github.com/amsalt/nginet/core"
 	"github.com/gorilla/websocket"
 )
 
@@ -29,7 +29,7 @@ func newServerChannel(opts *serverOptions) core.AcceptorChannel {
 }
 
 // Write writes message to opposite side.
-func (s *server) Write(msg interface{}) error {
+func (s *server) Write(msg interface{}, extra ...interface{}) error {
 	// nothing to do.
 	return nil
 }

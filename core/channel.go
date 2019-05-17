@@ -17,7 +17,7 @@ type Channel interface {
 	Attr() *AttrMap
 
 	// Write writes message to opposite side.
-	Write(msg interface{}) error
+	Write(msg interface{}, extra ...interface{}) error
 
 	// Close close the connection
 	Close()
@@ -154,7 +154,7 @@ func (bc *BaseChannel) RemoteAddr() net.Addr {
 	panic("BaseChannel RemoteAddr not implement, need be overrided")
 }
 
-func (bc *BaseChannel) Write(msg interface{}) error {
+func (bc *BaseChannel) Write(msg interface{}, extra ...interface{}) error {
 	panic("BaseChannel Write not implement, need be overrided")
 }
 

@@ -11,7 +11,6 @@ import (
 )
 
 // IDParser parses message ID.
-// Deprecated
 type IDParser struct {
 	*core.DefaultInboundHandler
 	*core.DefaultOutboundHandler
@@ -32,18 +31,45 @@ func NewIDParser(register message.Register, parser message.PacketIDParser) *IDPa
 
 // OnRead implements InboundHandler
 func (ip *IDParser) OnRead(ctx *core.ChannelContext, msg interface{}) {
-	if msg, ok := msg.(bytes.ReadOnlyBuffer); ok {
-		msgID, msgBuf, err := ip.DecodeID(msg)
+	log.Debugf("IDParser OnRead message type: %T", msg)
+	if data, ok := msg.(bytes.ReadOnlyBuffer); ok {
+		output, err := ip.decodeId(data)
 		if err == nil {
-			var output []interface{}
-			output = append(output, msgID, msgBuf)
 			ctx.FireRead(output)
 		} else {
 			ctx.FireError(err)
 		}
-
+	} else if data, ok := msg.([]interface{}); ok {
+		log.Debugf("IDParser OnRead message len: %+v, data[0] type: %T", len(data), data[0])
+		if len(data) >= 2 {
+			if m, ok := data[0].(bytes.ReadOnlyBuffer); ok {
+				output, err := ip.decodeId(m)
+				if err == nil {
+					output = append(output, data[1:]...)
+					ctx.FireRead(output)
+				} else {
+					log.Errorf("IDParser err: %+v", err)
+					ctx.FireError(err)
+				}
+			}
+		}
+	} else {
+		log.Errorf("IDParser unsupported message type: %T", msg)
+		ctx.FireError(fmt.Errorf("IDParser unsupported message type: %T", msg))
 	}
+}
 
+func (ip *IDParser) decodeId(msg bytes.ReadOnlyBuffer) ([]interface{}, error) {
+	msgID, msgBuf, err := ip.DecodeID(msg)
+	log.Debugf("IDParser.OnRead parse msgID: %+v, msgBuf: %+v, err: %+v", msgID, msgBuf, err)
+	if err == nil {
+		var output []interface{}
+
+		output = append(output, msgID, msgBuf)
+		return output, nil
+	} else {
+		return nil, err
+	}
 }
 
 func (ip *IDParser) OnConnect(ctx *core.ChannelContext, channel core.Channel) {
@@ -61,13 +87,17 @@ func (ip *IDParser) OnDisconnect(ctx *core.ChannelContext) {
 // 		arr[0] is bytes.WriteOnlyBuffer with message ID.
 // 		arr[1] is original message object.
 func (ip *IDParser) OnWrite(ctx *core.ChannelContext, msg interface{}) {
+	log.Debugf("IDParser.OnWrite msg: %+v", msg)
 	if rawBytes, ok := msg.([]byte); ok {
 		ctx.FireWrite(rawBytes)
+	} else if _, ok := msg.(bytes.WriteOnlyBuffer); ok {
+		ctx.FireWrite(msg)
 	} else {
-		idBuf, err := ip.EncodeID(msg)
+		idBuf, id, err := ip.EncodeID(msg)
+		log.Debugf("IDParser.OnWrite msg: %+v, id: %+v", msg, id)
 		if err == nil {
 			var output []interface{}
-			output = append(output, idBuf, msg)
+			output = append(output, idBuf, msg, id)
 			ctx.FireWrite(output)
 		} else {
 			ctx.FireError(err)
@@ -87,7 +117,7 @@ func (ip *IDParser) DecodeID(msg bytes.ReadOnlyBuffer) (interface{}, bytes.ReadO
 	return msgID, msg, nil
 }
 
-func (ip *IDParser) EncodeID(msg interface{}) (bytes.WriteOnlyBuffer, error) {
+func (ip *IDParser) EncodeID(msg interface{}) (bytes.WriteOnlyBuffer, interface{}, error) {
 	var msgID interface{}
 
 	if raw, ok := msg.(*packet.RawPacket); ok {
@@ -96,9 +126,10 @@ func (ip *IDParser) EncodeID(msg interface{}) (bytes.WriteOnlyBuffer, error) {
 	} else {
 		meta := ip.register.GetMetaByMsg(msg)
 		if meta == nil {
-			return nil, fmt.Errorf("IDParser.OnWrite msg: %+v not registered", msg)
+			return nil, nil, fmt.Errorf("IDParser.OnWrite msg: %+v not registered", msg)
 		}
 		msgID = meta.ID()
+		log.Debugf("IDParser.EncodeID msg: %+v, id: %+v", msg, msgID)
 	}
 
 	// the max pre-reserved header size is MaxPacketLen + MaxExtraLen
@@ -106,8 +137,8 @@ func (ip *IDParser) EncodeID(msg interface{}) (bytes.WriteOnlyBuffer, error) {
 	err := ip.parser.Encode(msgID, buf)
 
 	if err != nil {
-		return nil, fmt.Errorf("IDParser.OnWrite encode message id failed: %+v", err)
+		return nil, nil, fmt.Errorf("IDParser.OnWrite encode message id failed: %+v", err)
 
 	}
-	return buf, nil
+	return buf, msgID, nil
 }

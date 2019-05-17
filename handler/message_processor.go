@@ -3,6 +3,7 @@ package handler
 import (
 	"errors"
 
+	"github.com/amsalt/log"
 	"github.com/amsalt/nginet/core"
 	"github.com/amsalt/nginet/message"
 )
@@ -27,11 +28,13 @@ func (mh *DefaultMessageHandler) OnRead(ctx *core.ChannelContext, msg interface{
 	if params, ok := msg.([]interface{}); ok && len(params) > 1 {
 		id := params[0]
 		p := mh.processorMgr.GetProcessorByID(id)
+		if p == nil {
+			log.Errorf("msg id %+v not register processor", id)
+			ctx.FireError(errors.New("msg not registered"))
+		}
 		if len(params) > 2 {
 			var args []interface{}
-			for i := 2; i < len(params); i++ {
-				args = append(args, params[i])
-			}
+			args = append(args, params[2:]...)
 			p.SafeCall(ctx, params[1], args...)
 		} else {
 			p.SafeCall(ctx, params[1])

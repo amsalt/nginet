@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+
+	"github.com/amsalt/log"
 )
 
 var (
@@ -59,6 +61,7 @@ func (r *register) RegisterMsgByID(assignID interface{}, msg interface{}) Meta {
 	metaData.msgID = assignID
 	r.msgIDInfo[fmt.Sprintf("%v", assignID)] = metaData
 
+	log.Debugf("register metaData %+v by id: %+v", metaData, metaData.msgID)
 	return metaData
 }
 
@@ -74,7 +77,8 @@ func (r *register) registerMsgByName(msg interface{}) (meta *metaData) {
 	}
 
 	if _, ok := r.msgNameInfo[msgName]; ok {
-		panic(fmt.Errorf("message %v is already registered", msgName))
+		log.Warningf("message %v is already registered", msgName)
+		return
 	}
 
 	meta = newMetaData(msgName, msgName, mType)

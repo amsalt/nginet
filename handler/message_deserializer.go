@@ -36,6 +36,9 @@ func (md *MessageDeserializer) OnRead(ctx *core.ChannelContext, msg interface{})
 			if err == nil {
 				var output []interface{}
 				output = append(output, id, result)
+				if len(params) >= 3 {
+					output = append(output, params[2:]...)
+				}
 				ctx.FireRead(output)
 			} else {
 				log.Errorf("PacketDeserializer.OnRead failed: %+v", err)

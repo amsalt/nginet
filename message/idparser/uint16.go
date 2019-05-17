@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/amsalt/log"
 	"github.com/amsalt/nginet/bytes"
 	"github.com/amsalt/nginet/message"
-	"github.com/amsalt/log"
 )
 
 type uint16ID struct {

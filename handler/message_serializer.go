@@ -31,12 +31,15 @@ func NewMessageSerializer(register message.Register, codec encoding.Codec) *Mess
 func (ms *MessageSerializer) OnWrite(ctx *core.ChannelContext, msg interface{}) {
 	if rawBytes, ok := msg.([]byte); ok {
 		ctx.FireWrite(rawBytes)
-	} else if params, ok := msg.([]interface{}); ok && len(params) > 1 {
+	} else if _, ok := msg.(bytes.WriteOnlyBuffer); ok {
+		ctx.FireWrite(msg)
+	} else if params, ok := msg.([]interface{}); ok && len(params) > 2 {
 		idBuf := params[0]
 		msgOrigin := params[1]
+		msgID := params[2]
 		buf, ok := idBuf.(bytes.WriteOnlyBuffer)
 		if ok {
-			err := ms.EncodePayload(buf, msgOrigin)
+			err := ms.EncodePayload(buf, msgOrigin, msgID)
 			if err != nil {
 				ctx.FireError(err)
 				return
@@ -51,7 +54,7 @@ func (ms *MessageSerializer) OnWrite(ctx *core.ChannelContext, msg interface{}) 
 	}
 }
 
-func (ps *MessageSerializer) EncodePayload(bufWithID bytes.WriteOnlyBuffer, msg interface{}) error {
+func (ms *MessageSerializer) EncodePayload(bufWithID bytes.WriteOnlyBuffer, msg interface{}, msgID interface{}) error {
 	var rawData []byte
 	var err error
 	if raw, ok := msg.(*packet.RawPacket); ok {
@@ -59,10 +62,16 @@ func (ps *MessageSerializer) EncodePayload(bufWithID bytes.WriteOnlyBuffer, msg 
 		if !ok {
 			return errors.New("packet.RawPacket invalid payload.")
 		}
-
 		rawData = data
+
 	} else {
-		rawData, err = ps.codec.Marshal(msg)
+		meta := ms.register.GetMetaByID(msgID)
+		if meta != nil && meta.Codec() != nil {
+			rawData, err = meta.Codec().Marshal(msg)
+		} else {
+			rawData, err = ms.codec.Marshal(msg)
+		}
+
 		if err != nil {
 			log.Errorf("PacketSerializer.OnWrite Marshal failed for %+v", err)
 			return err
