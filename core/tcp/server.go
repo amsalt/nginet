@@ -1,6 +1,7 @@
 package tcp
 
 import (
+	"fmt"
 	"net"
 	"time"
 
@@ -51,7 +52,7 @@ func (s *server) Listen(addr net.Addr) {
 
 	ln, err := net.Listen(addr.Network(), addr.String())
 	if err != nil {
-		log.Errorf("TCP server init error: %+v", err)
+		panic(fmt.Errorf("TCP server init error: %+v", err))
 	}
 	s.ln = ln
 }

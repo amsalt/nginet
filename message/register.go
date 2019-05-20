@@ -78,7 +78,6 @@ func (r *register) registerMsgByName(msg interface{}) (meta *metaData) {
 
 	if _, ok := r.msgNameInfo[msgName]; ok {
 		log.Warningf("message %v is already registered", msgName)
-		return
 	}
 
 	meta = newMetaData(msgName, msgName, mType)

@@ -15,5 +15,6 @@ func Init() {
 
 func defaultLogger() {
 	logger := logrus.NewBuilder(nil).Build()
+
 	log.SetLogger(logger)
 }

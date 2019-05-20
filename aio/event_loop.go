@@ -43,7 +43,7 @@ func (el *EventLoop) Execute(task func()) {
 // for example:
 // 	ScheduleAtFixedRate(func(){print("hello")}, time.Milliseconds*5) means print "hello" at rate of 5ms
 func (el *EventLoop) ScheduleAtFixedRate(task func(), period time.Duration) {
-	te := &tickevent{period: period, t: task, el: el}
+	te := &ticker{period: period, t: task, el: el}
 	te.tick()
 }
 
@@ -82,13 +82,13 @@ func (el *EventLoop) loop() {
 Stop:
 }
 
-type tickevent struct {
+type ticker struct {
 	period time.Duration
 	t      func()
 	el     *EventLoop
 }
 
-func (te *tickevent) tick() {
+func (te *ticker) tick() {
 	time.AfterFunc(te.period, func() {
 		te.el.Execute(te.t) // exec event
 		te.tick()           // recursive schedule new loop event
