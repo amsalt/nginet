@@ -85,6 +85,10 @@ func (s *server) accept() {
 	}
 }
 
+func (s *server) Close() {
+	s.ln.Close()
+}
+
 func (s *server) waitWhenTemporaryErr() {
 	if s.retryDelay == 0 {
 		s.retryDelay = 5 * time.Millisecond

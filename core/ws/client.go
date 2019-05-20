@@ -45,3 +45,9 @@ func (c *client) Connect(addr interface{}) (core.SubChannel, error) {
 	c.FireConnect(subChannel)
 	return subChannel, nil
 }
+
+func (c *client) Close() {
+	if c.conn != nil {
+		c.conn.Close()
+	}
+}

@@ -60,6 +60,10 @@ func (s *server) Accept() {
 	s.serve()
 }
 
+func (s *server) Close() {
+	s.ln.Close()
+}
+
 func (s *server) serve() {
 	handler := http.NewServeMux()
 	upgrader := websocket.Upgrader{
