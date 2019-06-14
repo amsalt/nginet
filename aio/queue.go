@@ -43,8 +43,11 @@ func (queue *Queue) Push(element interface{}) {
 
 // Poll pop the first elment
 func (queue *Queue) Poll() (element interface{}) {
-	element = queue.list[0]
-	queue.list = queue.list[1:]
+	if len(queue.list) > 0 {
+		element = queue.list[0]
+		queue.list = queue.list[1:]
+	}
+
 	return
 }
 
