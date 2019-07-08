@@ -138,5 +138,5 @@ func (wb *writeOnlyBuffer) Len() int {
 func (wb *writeOnlyBuffer) Reset() {
 	wb.start = wb.hlen
 	wb.end = wb.start
-	wb.buf = wb.buf[:wb.start]
+	wb.buf = wb.buf[:0]
 }
