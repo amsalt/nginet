@@ -135,6 +135,8 @@ func (wb *writeOnlyBuffer) Len() int {
 	return wb.end - wb.start
 }
 
+// Reset reset the memory for reuse.
+// Notice: reset won't cause GC, you should care about memory leak.
 func (wb *writeOnlyBuffer) Reset() {
 	wb.start = wb.hlen
 	wb.end = wb.start
