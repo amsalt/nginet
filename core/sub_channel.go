@@ -93,7 +93,7 @@ func (dsc *DefaultSubChannel) reconnect() bool {
 			dsc.resetReconn()
 			return true
 		} else {
-			time.Sleep(time.Duration(dsc.reconnectTimes) * 2 * time.Second % RetryMaxWaitSec)
+			time.Sleep((time.Duration(dsc.reconnectTimes) * 2 % RetryMaxWaitSec) * time.Second)
 		}
 	}
 
