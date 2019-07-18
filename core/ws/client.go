@@ -41,7 +41,7 @@ func (c *client) Connect(addr interface{}) (core.SubChannel, error) {
 
 	c.conn = conn
 	c.response = response
-	subChannel := core.NewDefaultSubChannel(newRawConn(conn), c.opts.WriteBufSize, c.opts.ReadBufSize)
+	subChannel := core.NewDefaultSubChannel(newRawConn(conn), c.opts.WriteBufSize, c.opts.ReadBufSize, &core.ReconnectOpts{c.opts.AutoReconnect, c.opts.MaxReconnectTimes})
 	c.FireConnect(subChannel)
 	return subChannel, nil
 }
