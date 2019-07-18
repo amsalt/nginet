@@ -2,7 +2,7 @@ package codes
 
 import "fmt"
 
-// Package codes defines the common error codes used by gnet.
+// Package codes defines the common error codes used by nginet.
 
 // A Code is an unsigned 32-bit error code
 type Code uint32

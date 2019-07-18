@@ -34,6 +34,8 @@ type RawConn interface {
 
 	// RemoteAddr returns the remote network address.
 	RemoteAddr() net.Addr
+
+	SetConn(conn net.Conn)
 }
 
 type ChannelIDGenerator interface {

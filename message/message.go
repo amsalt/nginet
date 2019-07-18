@@ -8,11 +8,11 @@ import (
 	"github.com/amsalt/nginet/encoding"
 )
 
-// package message defines all kinds of messages used in gnet.
+// package message defines all kinds of messages used in nginet.
 
 // Packet represents the serialized form of a network message.
 //
-// the structure of a packet defined in gnet:
+// the structure of a packet defined in nginet:
 // 	- Length: Represents the length of the whole packet in byte array.
 //  - PacketID: The application layer defines the mapping of packet ID, one packetID one network message.
 //  - msg_payload: The payload of the packet.

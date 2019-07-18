@@ -11,9 +11,17 @@ import (
 	"github.com/amsalt/log"
 )
 
+const (
+	// RetryMaxWaitSec represents the max wait time for retry reconnect.
+	RetryMaxWaitSec = 120
+)
+
 var (
+	// ErrWriteMsgQueueFull represents an error that the reserved queue is full.
 	ErrWriteMsgQueueFull = errors.New("write queue is full")
-	ErrConnLost          = errors.New("connection lost")
+
+	// ErrConnLost connection lost
+	ErrConnLost = errors.New("connection lost")
 )
 
 // DefaultSubChannel represents a default implementation of SubChannel.
@@ -28,15 +36,31 @@ type DefaultSubChannel struct {
 	closeFlag   bool
 	writeBuf    chan interface{}
 	readBufSize int
+
+	// if open, will reconnect with the same SubChannel instance
+	autoReconnect     bool
+	reconnectTimes    int
+	maxReconnectTimes int
+	reconnecting      bool
+}
+
+type ReconnectOpts struct {
+	AutoReconnect     bool
+	MaxReconnectTimes int
 }
 
 // NewDefaultSubChannel returns a new instance of SubChannel
 // The same time, the subchannel will start the read loop and write loop
 // to serve reading message and writting message.
-func NewDefaultSubChannel(conn RawConn, readBufSize, writeBufSize int) SubChannel {
+func NewDefaultSubChannel(conn RawConn, readBufSize, writeBufSize int, reconnOpts ...*ReconnectOpts) SubChannel {
 	dsc := &DefaultSubChannel{conn: conn}
 	dsc.BaseChannel = NewBaseChannel(dsc)
 	dsc.closeChan = make(chan byte)
+
+	if len(reconnOpts) > 0 {
+		dsc.autoReconnect = reconnOpts[0].AutoReconnect
+		dsc.maxReconnectTimes = reconnOpts[0].MaxReconnectTimes
+	}
 
 	dsc.writeBuf = make(chan interface{}, writeBufSize)
 	dsc.readBufSize = readBufSize
@@ -50,16 +74,50 @@ func (dsc *DefaultSubChannel) start() {
 	go dsc.writeloop()
 }
 
+func (dsc *DefaultSubChannel) resetReconn() {
+	dsc.reconnecting = false
+	dsc.reconnectTimes = 0
+}
+
+func (dsc *DefaultSubChannel) reconnect() bool {
+	dsc.reconnecting = true
+	for dsc.reconnectTimes < dsc.maxReconnectTimes {
+		log.Warning("reconnecting...")
+		dsc.reconnectTimes++
+		netaddr := dsc.conn.RemoteAddr()
+
+		conn, err := net.Dial(netaddr.Network(), netaddr.String())
+		if err == nil {
+			log.Debug("reconnect success: %+v", conn)
+			dsc.conn.SetConn(conn)
+			dsc.resetReconn()
+			return true
+		} else {
+			time.Sleep(time.Duration(dsc.reconnectTimes) * 2 * time.Second % RetryMaxWaitSec)
+		}
+	}
+
+	dsc.resetReconn()
+	return false
+}
+
 func (dsc *DefaultSubChannel) readloop() {
 	log.Debug("start read loop.")
 	readerBuf := bytes.NewReadOnlyBuffer(dsc.readBufSize)
 
-	timer := time.NewTimer(5 * time.Second)
-
 	for {
 		err := dsc.conn.Read(readerBuf)
+
 		if err != nil {
-			goto ERR
+			log.Infof("read message err: %+v", err)
+			if !dsc.autoReconnect {
+				goto ERR
+			} else {
+				reconnectSuccess := dsc.reconnect()
+				if !reconnectSuccess {
+					goto ERR
+				}
+			}
 		}
 
 		// ensure process all messages.
@@ -70,29 +128,10 @@ func (dsc *DefaultSubChannel) readloop() {
 				break
 			}
 		}
-
-		// validate
-		select {
-		case <-timer.C:
-			if !dsc.isAlive() {
-				dsc.Close()
-			}
-			timer.Reset(5 * time.Second)
-		case <-dsc.closeChan:
-			timer.Stop()
-			goto CLOSED
-		default:
-		}
 	}
 ERR:
 	dsc.Close()
 	return
-CLOSED:
-	// exit the read loop.
-}
-
-func (dsc *DefaultSubChannel) isAlive() bool {
-	return true
 }
 
 func (dsc *DefaultSubChannel) writeloop() {
@@ -101,6 +140,12 @@ func (dsc *DefaultSubChannel) writeloop() {
 		if msg == nil {
 			continue
 		}
+
+		for dsc.reconnecting {
+			log.Debug("wait write when reconnecting.")
+			time.Sleep(time.Second)
+		}
+
 		dsc.Pipeline().FireWrite(msg)
 	}
 	dsc.Close()
@@ -123,6 +168,10 @@ func (dsc *DefaultSubChannel) Write(msg interface{}, extra ...interface{}) (err 
 		err = ErrConnLost
 	default:
 		err = ErrWriteMsgQueueFull
+	}
+
+	if err != nil {
+		log.Errorf("subchannel write message err: %+v", err)
 	}
 	return
 }

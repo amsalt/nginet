@@ -88,6 +88,20 @@ func WithLinger(sec int) core.BuildOption {
 	}
 }
 
+// WithAutoReconnect sets whether auto reconnect when disconnect with server.
+func WithAutoReconnect(r bool) core.BuildOption {
+	return func(o interface{}) {
+		o.(*serverOptions).AutoReconnect = r
+	}
+}
+
+// WithMaxReconnectTimes sets max number for trying reconnect with server.
+func WithMaxReconnectTimes(n int) core.BuildOption {
+	return func(o interface{}) {
+		o.(*serverOptions).MaxReconnectTimes = n
+	}
+}
+
 type tcpServBuilder struct {
 }
 
@@ -105,9 +119,10 @@ func (tb *tcpServBuilder) Build(opt ...core.BuildOption) core.AcceptorChannel {
 }
 
 var defaultCliOptions = Options{
-	WriteBufSize:  1024,
-	ReadBufSize:   1024,
-	AutoReconnect: false,
+	WriteBufSize:      1024,
+	ReadBufSize:       1024,
+	AutoReconnect:     false,
+	MaxReconnectTimes: 20,
 }
 
 var defaultServeroptions = serverOptions{
@@ -119,9 +134,10 @@ var defaultServeroptions = serverOptions{
 }
 
 type Options struct {
-	WriteBufSize  int
-	ReadBufSize   int
-	AutoReconnect bool
+	WriteBufSize      int
+	ReadBufSize       int
+	AutoReconnect     bool
+	MaxReconnectTimes int
 }
 
 type serverOptions struct {

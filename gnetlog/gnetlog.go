@@ -5,7 +5,7 @@ import (
 	"github.com/amsalt/log/adaptor/logrus"
 )
 
-// package gnetlog defines the log library used in gnet.
+// package gnetlog defines the log library used in nginet.
 // it configures the log library.
 
 // Init initial logger.

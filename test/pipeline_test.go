@@ -8,13 +8,6 @@ import (
 	"github.com/amsalt/nginet/core"
 )
 
-type Msg struct {
-	Hello string
-}
-
-type inhandler1 struct {
-}
-
 func (ih *inhandler1) OnRead(ctx *core.ChannelContext, msg interface{}) {
 	if m, ok := msg.(bytes.ReadOnlyBuffer); ok {
 		log.Infof("inhandler1 msg: %+v", string(m.Bytes()))

@@ -17,6 +17,10 @@ func newRawConn(conn net.Conn) core.RawConn {
 	return r
 }
 
+func (r *rawConn) SetConn(conn net.Conn) {
+	r.conn = conn
+}
+
 // Write writes message to opposite side.
 func (r *rawConn) Write(msg []byte) {
 	if r.conn != nil {

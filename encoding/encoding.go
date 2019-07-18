@@ -8,7 +8,7 @@ import "fmt"
 // A CodecType is a string codec type.
 type CodecType string
 
-// Codec defines the interface that gnet uses to encode and decode messages. a Codec's
+// Codec defines the interface that nginet uses to encode and decode messages. a Codec's
 // methods can be called from concurrent goroutines.
 type Codec interface {
 	// Marshal returns the special codec format of v.

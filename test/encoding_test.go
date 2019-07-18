@@ -5,9 +5,9 @@ import (
 
 	"github.com/amsalt/nginet/encoding"
 
+	"github.com/amsalt/log"
 	"github.com/amsalt/nginet/encoding/json"
 	_ "github.com/amsalt/nginet/encoding/proto"
-	"github.com/amsalt/log"
 )
 
 type msg struct {
